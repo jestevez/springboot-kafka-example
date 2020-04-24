@@ -1,0 +1,63 @@
+version: '3.7'
+
+networks:
+  app-tier:
+    driver: bridge
+
+services:
+  zookeeper:
+    image: 'bitnami/zookeeper:latest'
+    hostname: zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+      - "2888:2888"
+      - "3888:3888"
+      - "18080:8080"
+    networks:
+      - app-tier
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes 
+  kafka:
+    image: 'bitnami/kafka:latest'
+    hostname: kafka
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    networks:
+      - app-tier
+    environment:
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,PLAINTEXT_HOST://:29092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+  springboot-kafka:
+    image: 'springboot-kafka-example:v1'
+    hostname: springboot-kafka
+    container_name: springboot-kafka
+    depends_on:
+      - zookeeper
+      - kafka
+    ports:
+      - "4900:4900"
+    restart: always
+    networks:
+      - app-tier
+  kafdrop:
+    image: 'obsidiandynamics/kafdrop'
+    hostname: kafdrop
+    container_name: kafdrop
+    depends_on:
+      - zookeeper
+      - kafka
+    ports:
+      - "9000:9000"
+    environment:
+      - KAFKA_BROKERCONNECT=kafka:9092
+    networks:
+      - app-tier
