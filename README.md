@@ -1,28 +1,48 @@
-== Compilar
+# springboot-kafka-example
 
+Sample kafka using springboot
+
+Clone repository
+
+```
+git@github.com:jestevez/springboot-kafka-example.git
+```
+
+Build
+
+```
+cd springboot-kafka-example
 ./mvnw clean package -Dmaven.test.skip=true
+```
+Build Docker Image
 
-== Crear la imagen de docker 
-
+```
 docker build -t springboot-kafka-example:v1 .
+```
 
-== Listar las imagenes
+Checking Docker Image
 
+```
 docker image list
+```
 
-== Docker compose
+Docker compose
 
+```
 docker-compose up
+```
 
-== Entrar en la consola Web y crear el topic inbound
+Configure Kafka: 
+
+Enter the Web console and create the topic inbound
 
 http://localhost:9000/
 
-== Entrar en el navegador web y esperar los mesanjes replicados via Socket
+Enter the web browser and wait for the messages replicated via Socket
 
 http://localhost:4900
 
-== Publicar mensajes usando la consola
+Publish test message using restfull endpoind
 
 ````
 curl --location --request POST 'localhost:4900/kafka/publish' \
